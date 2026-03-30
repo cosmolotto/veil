@@ -39,8 +39,8 @@ export async function initPurchases(userId?: string): Promise<void> {
   const { Platform } = await import('react-native');
   const key = Platform.OS === 'ios' ? RC_KEY_IOS : RC_KEY_ANDROID;
   if (!key) return;
-  const { LOG_LEVEL } = await import('react-native-purchases');
-  Purchases.setLogLevel(LOG_LEVEL.WARN);
+  // v8 API: setDebugLogsEnabled instead of setLogLevel
+  Purchases.setDebugLogsEnabled(false);
   Purchases.configure({ apiKey: key });
   if (userId) Purchases.logIn(userId);
 }
