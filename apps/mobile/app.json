@@ -34,12 +34,19 @@
           "icon": "./assets/notification-icon.png",
           "color": "#8B5CF6"
         }
-      ],
-      "react-native-purchases"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
     },
-    "scheme": "veil"
+    "scheme": "veil",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "REPLACE_WITH_UUID_FROM_EXPO_DEV"
+      }
+    }
   }
 }
