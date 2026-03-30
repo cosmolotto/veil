@@ -45,8 +45,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "REPLACE_WITH_UUID_FROM_EXPO_DEV"
+        "projectId": "25f9e322-d339-4040-bb2f-95cb89d39438"
       }
-    }
+    },
+    "owner": "morven"
   }
 }
