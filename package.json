@@ -1,0 +1,9 @@
+{
+  "name": "veil",
+  "private": true,
+  "scripts": {
+    "mobile": "pnpm --filter mobile start",
+    "api": "pnpm --filter api dev",
+    "build:api": "pnpm --filter api build"
+  }
+}
