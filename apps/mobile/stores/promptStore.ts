@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { DailyPrompt } from '@veil/shared';
+import type { DailyPrompt } from '../lib/types';
 
 interface PromptState {
   todayPrompt: DailyPrompt | null;

@@ -2,8 +2,6 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "paths": {
-      "@veil/shared": ["../../packages/shared/src/types"]
-    }
+    "paths": {}
   }
 }

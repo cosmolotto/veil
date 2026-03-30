@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { DailyPrompt, Response, VeilUser } from '@veil/shared';
+import type { DailyPrompt, Response, VeilUser } from './types';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001';
 
