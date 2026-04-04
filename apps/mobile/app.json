@@ -28,19 +28,12 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
+      "expo-font",
       [
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
           "color": "#8B5CF6"
-        }
-      ],
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "kotlinVersion": "1.8.22"
-          }
         }
       ]
     ],

@@ -15,14 +15,33 @@ export function ResponseComposer({ promptId }: ResponseComposerProps) {
   const { markResponded } = usePromptStore();
   const [mode, setMode] = useState<Mode>('text');
   const [content, setContent] = useState('');
+  const [voiceDuration, setVoiceDuration] = useState('45');
+  const [sketchHint, setSketchHint] = useState('');
   const [isShared, setIsShared] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (content.length < 10) return;
+    let payload = content.trim();
+
+    if (mode === 'text' && payload.length < 10) return;
+    if (mode === 'voice') {
+      if (!payload) return;
+      payload = JSON.stringify({
+        transcript: payload,
+        duration_seconds: Number(voiceDuration) || 30,
+      });
+    }
+    if (mode === 'sketch') {
+      if (!payload) return;
+      payload = JSON.stringify({
+        sketch_description: payload,
+        context: sketchHint.trim() || null,
+      });
+    }
+
     setLoading(true);
     try {
-      await api.submitResponse({ prompt_id: promptId, type: 'text', content, is_shared: isShared });
+      await api.submitResponse({ prompt_id: promptId, type: mode, content: payload, is_shared: isShared });
       markResponded();
     } catch {
       // CLAUDE_REVIEW: Add user-facing error toast in Phase 2
@@ -70,19 +89,71 @@ export function ResponseComposer({ promptId }: ResponseComposerProps) {
               thumbColor={COLORS.white}
             />
           </View>
+          <VeilButton label="Submit" onPress={handleSubmit} disabled={content.length < 10} loading={loading} style={styles.btn} />
+        </>
+      ) : (
+        <>
+          {mode === 'voice' ? (
+            <View style={styles.altCard}>
+              <Text style={styles.altTitle}>Voice reflection</Text>
+              <TextInput
+                style={styles.input}
+                multiline
+                numberOfLines={4}
+                placeholder="Write the key words from your voice note..."
+                placeholderTextColor={COLORS.muted}
+                value={content}
+                onChangeText={setContent}
+              />
+              <TextInput
+                style={styles.metaInput}
+                value={voiceDuration}
+                onChangeText={setVoiceDuration}
+                keyboardType="number-pad"
+                placeholder="Duration seconds"
+                placeholderTextColor={COLORS.muted}
+              />
+            </View>
+          ) : (
+            <View style={styles.altCard}>
+              <Text style={styles.altTitle}>Sketch reflection</Text>
+              <TextInput
+                style={styles.input}
+                multiline
+                numberOfLines={4}
+                placeholder="Describe your sketch..."
+                placeholderTextColor={COLORS.muted}
+                value={content}
+                onChangeText={setContent}
+              />
+              <TextInput
+                style={styles.metaInput}
+                value={sketchHint}
+                onChangeText={setSketchHint}
+                placeholder="What emotion did you draw?"
+                placeholderTextColor={COLORS.muted}
+              />
+            </View>
+          )}
+
+          <View style={styles.shareRow}>
+            <Text style={styles.shareLabel}>Share with resonance matches</Text>
+            <Switch
+              value={isShared}
+              onValueChange={setIsShared}
+              trackColor={{ true: COLORS.accent, false: COLORS.border }}
+              thumbColor={COLORS.white}
+            />
+          </View>
+
           <VeilButton
-            label="Submit"
+            label={`Submit ${mode}`}
             onPress={handleSubmit}
-            disabled={content.length < 10}
+            disabled={!content.trim()}
             loading={loading}
             style={styles.btn}
           />
         </>
-      ) : (
-        <View style={styles.comingSoon}>
-          <Text style={styles.comingSoonText}>{mode === 'voice' ? '🎙' : '✏️'} Coming soon</Text>
-          {/* CLAUDE_REVIEW: implement voice + sketch in Phase 2 */}
-        </View>
       )}
     </View>
   );
@@ -111,6 +182,16 @@ const styles = StyleSheet.create({
   shareRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   shareLabel: { fontSize: 13, color: COLORS.muted },
   btn: { width: '100%' },
-  comingSoon: { padding: 40, alignItems: 'center', backgroundColor: COLORS.surface, borderRadius: 12, marginBottom: 16 },
-  comingSoonText: { color: COLORS.muted, fontSize: 16 },
+  altCard: { backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, borderRadius: 12, padding: 14, marginBottom: 14 },
+  altTitle: { color: COLORS.white, fontSize: 13, marginBottom: 10, fontWeight: '600' },
+  metaInput: {
+    marginTop: 6,
+    backgroundColor: COLORS.surfaceLight,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 10,
+    color: COLORS.white,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
 });

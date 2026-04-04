@@ -13,6 +13,7 @@ export const authPlugin = fp(async (fastify) => {
 
   fastify.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
     if (request.url === '/health') return;
+    if (request.url.startsWith('/api/billing/revenuecat/webhook')) return;
 
     const authHeader = request.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {

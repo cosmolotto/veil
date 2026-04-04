@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { VeilButton } from '../../components/ui/VeilButton';
@@ -11,6 +11,7 @@ const ALIAS_REGEX = /^[a-zA-Z0-9_]+$/;
 export default function CreateAlias() {
   const router = useRouter();
   const [alias, setAlias] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [checking, setChecking] = useState(false);
   const [available, setAvailable] = useState<boolean | null>(null);
 
@@ -28,13 +29,18 @@ export default function CreateAlias() {
     }
   }, []);
 
-  const handleChange = (value: string) => {
-    setAlias(value);
-    if (value.length >= 2) {
-      const timeout = setTimeout(() => checkAlias(value), 500);
-      return () => clearTimeout(timeout);
+  useEffect(() => {
+    if (alias.length < 2 || !ALIAS_REGEX.test(alias)) {
+      setAvailable(null);
+      return;
     }
-  };
+
+    const timeout = setTimeout(() => {
+      void checkAlias(alias);
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [alias, checkAlias]);
 
   const valid = alias.length >= 2 && ALIAS_REGEX.test(alias) && available === true;
   const statusColor = available === true ? '#10B981' : available === false ? COLORS.error : COLORS.muted;
@@ -50,16 +56,27 @@ export default function CreateAlias() {
       <Text style={styles.hint}>Letters, numbers, underscores only. You can change this later.</Text>
       <VeilInput
         value={alias}
-        onChangeText={handleChange}
+        onChangeText={setAlias}
         placeholder="your_alias"
         autoFocus
         maxLength={30}
         style={styles.input}
       />
+      <VeilInput
+        value={referralCode}
+        onChangeText={setReferralCode}
+        placeholder="Referral code (optional)"
+        autoCapitalize="characters"
+        maxLength={20}
+        style={styles.input}
+      />
       <Text style={[styles.status, { color: statusColor }]}>{statusText}</Text>
       <VeilButton
         label="Continue"
-        onPress={() => router.push({ pathname: '/(auth)/first-prompt', params: { alias } })}
+        onPress={() => router.push({
+          pathname: '/(auth)/first-prompt',
+          params: { alias, referral_code: referralCode.trim().toUpperCase() || undefined },
+        })}
         disabled={!valid}
         style={styles.btn}
       />

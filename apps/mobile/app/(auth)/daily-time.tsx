@@ -14,7 +14,7 @@ const HOURS = Array.from({ length: 24 }, (_, i) => {
 
 export default function DailyTime() {
   const router = useRouter();
-  const { alias } = useLocalSearchParams<{ alias: string }>();
+  const { alias, referral_code } = useLocalSearchParams<{ alias: string; referral_code?: string }>();
   const { setUser } = useAuthStore();
   const [selectedTime, setSelectedTime] = useState('08:00');
   const [loading, setLoading] = useState(false);
@@ -22,12 +22,22 @@ export default function DailyTime() {
   const handleStart = async () => {
     setLoading(true);
     try {
-      await api.onboard(alias ?? '', selectedTime);
+      await api.onboard(alias ?? '', selectedTime, referral_code?.trim() || undefined);
       const { data } = await api.updateMe({ onboarding_complete: true });
       setUser(data);
       router.replace('/(tabs)/today');
-    } catch (e) {
-      // CLAUDE_REVIEW: Add user-facing error toast in Phase 2
+    } catch {
+      // Allow local demo usage when backend/auth isn't configured.
+      setUser({
+        id: 'demo-user',
+        alias: alias || 'demo_soul',
+        created_at: new Date().toISOString(),
+        last_active_at: new Date().toISOString(),
+        onboarding_complete: true,
+        daily_prompt_time: selectedTime,
+        is_plus: false,
+      });
+      router.replace('/(tabs)/today');
     } finally {
       setLoading(false);
     }

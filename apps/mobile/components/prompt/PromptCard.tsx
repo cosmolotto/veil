@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import type { Prompt } from '@veil/shared';
 import { COLORS } from '../../lib/constants';
-import type { Prompt } from '../../lib/types';
 
 interface PromptCardProps {
   prompt: Prompt | null;

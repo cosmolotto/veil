@@ -5,5 +5,19 @@
     "mobile": "pnpm --filter mobile start",
     "api": "pnpm --filter api dev",
     "build:api": "pnpm --filter api build"
+  },
+  "devDependencies": {
+    "@react-native/js-polyfills": "0.74.87",
+    "metro": "0.80.12",
+    "metro-cache": "0.80.12",
+    "metro-config": "0.80.12",
+    "metro-core": "0.80.12",
+    "metro-file-map": "0.80.12",
+    "metro-minify-terser": "0.80.12",
+    "metro-resolver": "0.80.12",
+    "metro-runtime": "0.80.12",
+    "metro-source-map": "0.80.12",
+    "metro-symbolicate": "0.80.12",
+    "metro-transform-worker": "0.80.12"
   }
 }

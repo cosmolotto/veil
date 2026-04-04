@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { VeilButton } from '../../components/ui/VeilButton';
 import { COLORS } from '../../lib/constants';
@@ -14,6 +14,7 @@ const PROMISES = [
 
 export default function PrivacyPromise() {
   const router = useRouter();
+  const { alias, referral_code } = useLocalSearchParams<{ alias: string; referral_code?: string }>();
 
   return (
     <View style={styles.container}>
@@ -29,7 +30,7 @@ export default function PrivacyPromise() {
       </View>
       <VeilButton
         label="I trust this"
-        onPress={() => router.push('/(auth)/daily-time')}
+        onPress={() => router.push({ pathname: '/(auth)/daily-time', params: { alias, referral_code } })}
         style={styles.btn}
       />
     </View>

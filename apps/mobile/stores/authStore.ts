@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
-import type { VeilUser } from '../lib/types';
+import type { VeilUser } from '@veil/shared';
 
 interface AuthState {
   user: VeilUser | null;

@@ -1,23 +1,23 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '../../lib/api';
-import { usePromptStore } from '../../stores/promptStore';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { PromptCard } from '../../components/prompt/PromptCard';
 import { ResponseComposer } from '../../components/prompt/ResponseComposer';
+import { useTodayPrompt } from '../../hooks/useTodayPrompt';
+import { api } from '../../lib/api';
 import { COLORS } from '../../lib/constants';
 
 export default function Today() {
-  const { todayPrompt, hasResponded, setTodayPrompt } = usePromptStore();
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['today-prompt'],
-    queryFn: () => api.getTodayPrompt(),
+  const { todayPrompt, hasResponded, isLoading } = useTodayPrompt();
+  const [snapshotText, setSnapshotText] = React.useState('');
+  const highlightsQuery = useQuery({
+    queryKey: ['highlights'],
+    queryFn: async () => (await api.getResponseHighlights()).data,
   });
-
-  useEffect(() => {
-    if (data?.data) setTodayPrompt(data.data);
-  }, [data]);
+  const snapshotMutation = useMutation({
+    mutationFn: () => api.createSoulSnapshot({ snapshot_text: snapshotText.trim() }),
+    onSuccess: () => setSnapshotText(''),
+  });
 
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -37,12 +37,45 @@ export default function Today() {
             <View style={styles.responded}>
               <Text style={styles.respondedText}>✓ Responded today</Text>
               <Text style={styles.respondedSub}>Your Soul Map is updating.</Text>
+              <View style={styles.snapshotCard}>
+                <Text style={styles.snapshotTitle}>Create a Soul Snapshot</Text>
+                <TextInput
+                  value={snapshotText}
+                  onChangeText={setSnapshotText}
+                  placeholder="A short line you feel okay sharing..."
+                  placeholderTextColor={COLORS.muted}
+                  style={styles.snapshotInput}
+                  maxLength={180}
+                />
+                <TouchableOpacity
+                  style={[styles.snapshotButton, (!snapshotText.trim() || snapshotMutation.isPending) && styles.snapshotButtonDisabled]}
+                  disabled={!snapshotText.trim() || snapshotMutation.isPending}
+                  onPress={() => snapshotMutation.mutate()}
+                >
+                  <Text style={styles.snapshotButtonText}>
+                    {snapshotMutation.isPending ? 'Saving...' : 'Save snapshot'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )
           : (
             <ResponseComposer promptId={todayPrompt.prompt.id} />
           )
       )}
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Live Highlights</Text>
+        <Text style={styles.sectionSub}>Anonymized reflections people chose to share.</Text>
+        {(highlightsQuery.data || []).slice(0, 6).map((item) => (
+          <View key={item.id} style={styles.highlightCard}>
+            <Text style={styles.highlightMeta}>
+              {item.alias_hint} • {item.emotion} • depth {item.depth_level}
+            </Text>
+            <Text style={styles.highlightText}>{item.content_preview}</Text>
+          </View>
+        ))}
+      </View>
     </ScrollView>
   );
 }
@@ -56,4 +89,16 @@ const styles = StyleSheet.create({
   responded: { marginTop: 32, alignItems: 'center', padding: 32 },
   respondedText: { fontSize: 18, color: '#10B981', fontWeight: '600', marginBottom: 8 },
   respondedSub: { fontSize: 13, color: COLORS.muted },
+  section: { marginTop: 28 },
+  sectionTitle: { fontSize: 17, color: COLORS.white, fontWeight: '700' },
+  sectionSub: { fontSize: 12, color: COLORS.muted, marginTop: 4, marginBottom: 10 },
+  highlightCard: { backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, borderRadius: 12, padding: 12, marginBottom: 8 },
+  highlightMeta: { color: COLORS.muted, fontSize: 11, marginBottom: 6 },
+  highlightText: { color: COLORS.white, fontSize: 13, lineHeight: 18 },
+  snapshotCard: { width: '100%', marginTop: 16, borderWidth: 1, borderColor: COLORS.border, borderRadius: 12, backgroundColor: COLORS.surface, padding: 12 },
+  snapshotTitle: { color: COLORS.white, fontSize: 13, fontWeight: '700', marginBottom: 8, textAlign: 'left' },
+  snapshotInput: { minHeight: 80, borderWidth: 1, borderColor: COLORS.border, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 10, color: COLORS.white, textAlignVertical: 'top', marginBottom: 8 },
+  snapshotButton: { backgroundColor: COLORS.accent, borderRadius: 9, paddingVertical: 10, alignItems: 'center' },
+  snapshotButtonDisabled: { opacity: 0.4 },
+  snapshotButtonText: { color: COLORS.white, fontWeight: '700', fontSize: 12 },
 });

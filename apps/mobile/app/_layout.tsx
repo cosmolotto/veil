@@ -4,7 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../lib/api';
-import { initPurchases } from '../lib/purchases';
+import { initBilling } from '../lib/billing';
+import '../global.css';
 
 const queryClient = new QueryClient();
 
@@ -24,7 +25,9 @@ function AuthGuard() {
         try {
           const { data } = await api.getMe();
           setUser(data);
-          initPurchases(data.id);
+          if (data.id) {
+            await initBilling(data.id).catch(() => null);
+          }
         } catch {
           setUser(null);
         }
@@ -42,6 +45,8 @@ function AuthGuard() {
     if (!session && !inAuthGroup) {
       router.replace('/(auth)/welcome');
     } else if (session && !user && !inAuthGroup) {
+      router.replace('/(auth)/create-alias');
+    } else if (session && user && !user.onboarding_complete && !inAuthGroup) {
       router.replace('/(auth)/create-alias');
     } else if (session && user?.onboarding_complete && inAuthGroup) {
       router.replace('/(tabs)/today');

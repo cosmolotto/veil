@@ -11,6 +11,8 @@ import { promptRoutes } from './routes/prompts';
 import { responseRoutes } from './routes/responses';
 import { userRoutes } from './routes/users';
 import { soulMapRoutes } from './routes/soulmap';
+import { connectionRoutes } from './routes/connections';
+import { billingRoutes } from './routes/billing';
 
 const app = Fastify({ logger: true });
 
@@ -24,6 +26,8 @@ app.register(promptRoutes, { prefix: '/api/prompts' });
 app.register(responseRoutes, { prefix: '/api/responses' });
 app.register(userRoutes, { prefix: '/api/users' });
 app.register(soulMapRoutes, { prefix: '/api/soul-map' });
+app.register(connectionRoutes, { prefix: '/api/connections' });
+app.register(billingRoutes, { prefix: '/api/billing' });
 
 app.get('/health', async () => ({ status: 'ok', version: '1.0.0' }));
 

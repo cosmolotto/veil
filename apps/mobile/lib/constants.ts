@@ -34,6 +34,4 @@ export const SIGNAL_COLORS: Record<string, string> = {
 export const MAX_CONNECTIONS = 12;
 export const UNVEIL_DEPTH_THRESHOLD = 100;
 export const RESONANCE_ENGINE_MIN_DAYS = 7;
-
-export const VEIL_PLUS_PRODUCT_ID = 'veil_plus_monthly';
-export const VEIL_PLUS_PRICE = '$4.99/mo';
+export const VEIL_PLUS_PRICE = '$4.99 / month';

@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { VeilButton } from '../../components/ui/VeilButton';
 import { COLORS } from '../../lib/constants';
 
 export default function FirstPrompt() {
   const router = useRouter();
+  const { alias, referral_code } = useLocalSearchParams<{ alias: string; referral_code?: string }>();
 
   return (
     <View style={styles.container}>
@@ -22,7 +23,7 @@ export default function FirstPrompt() {
       </Text>
       <VeilButton
         label="I understand"
-        onPress={() => router.push('/(auth)/soul-intro')}
+        onPress={() => router.push({ pathname: '/(auth)/soul-intro', params: { alias, referral_code } })}
         style={styles.btn}
       />
     </View>

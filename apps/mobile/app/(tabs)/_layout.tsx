@@ -26,6 +26,7 @@ export default function TabLayout() {
       <Tabs.Screen name="veil" options={{ title: 'Veil', tabBarIcon: ({ color }) => <TabIcon symbol="◌" color={color} /> }} />
       <Tabs.Screen name="thread" options={{ title: 'Thread', tabBarIcon: ({ color }) => <TabIcon symbol="◍" color={color} /> }} />
       <Tabs.Screen name="self" options={{ title: 'Self', tabBarIcon: ({ color }) => <TabIcon symbol="◎" color={color} /> }} />
+      <Tabs.Screen name="plus" options={{ href: null }} />
     </Tabs>
   );
 }

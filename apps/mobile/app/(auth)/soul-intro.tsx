@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import Animated, {
   useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing
 } from 'react-native-reanimated';
@@ -30,6 +30,7 @@ function PulsingOrb() {
 
 export default function SoulIntro() {
   const router = useRouter();
+  const { alias, referral_code } = useLocalSearchParams<{ alias: string; referral_code?: string }>();
 
   return (
     <View style={styles.container}>
@@ -42,7 +43,7 @@ export default function SoulIntro() {
       </Text>
       <VeilButton
         label="Interesting"
-        onPress={() => router.push('/(auth)/privacy-promise')}
+        onPress={() => router.push({ pathname: '/(auth)/privacy-promise', params: { alias, referral_code } })}
         style={styles.btn}
       />
     </View>
