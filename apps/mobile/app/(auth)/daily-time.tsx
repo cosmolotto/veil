@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { VeilButton } from '../../components/ui/VeilButton';
 import { COLORS } from '../../lib/constants';
@@ -27,17 +27,10 @@ export default function DailyTime() {
       setUser(data);
       router.replace('/(tabs)/today');
     } catch {
-      // Allow local demo usage when backend/auth isn't configured.
-      setUser({
-        id: 'demo-user',
-        alias: alias || 'demo_soul',
-        created_at: new Date().toISOString(),
-        last_active_at: new Date().toISOString(),
-        onboarding_complete: true,
-        daily_prompt_time: selectedTime,
-        is_plus: false,
-      });
-      router.replace('/(tabs)/today');
+      Alert.alert(
+        'Setup incomplete',
+        'Onboarding could not finish. Check your Supabase/API configuration or use Demo mode from the welcome screen.'
+      );
     } finally {
       setLoading(false);
     }

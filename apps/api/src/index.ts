@@ -16,6 +16,20 @@ import { billingRoutes } from './routes/billing';
 
 const app = Fastify({ logger: true });
 
+const requiredEnv = [
+  'SUPABASE_URL',
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'SUPABASE_ANON_KEY',
+  'OPENAI_API_KEY',
+  'RESPONSE_ENCRYPTION_KEY',
+];
+
+for (const key of requiredEnv) {
+  if (!process.env[key]) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+}
+
 app.register(cors, { origin: true });
 app.register(sensible);
 app.register(supabasePlugin);
@@ -27,6 +41,7 @@ app.register(responseRoutes, { prefix: '/api/responses' });
 app.register(userRoutes, { prefix: '/api/users' });
 app.register(soulMapRoutes, { prefix: '/api/soul-map' });
 app.register(connectionRoutes, { prefix: '/api/connections' });
+app.register(connectionRoutes, { prefix: '/api/matches' });
 app.register(billingRoutes, { prefix: '/api/billing' });
 
 app.get('/health', async () => ({ status: 'ok', version: '1.0.0' }));

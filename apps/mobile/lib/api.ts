@@ -27,6 +27,18 @@ export const api = {
       body: JSON.stringify({ alias, daily_prompt_time, referral_code })
     }),
   getMe: () => apiFetch<{ data: VeilUser }>('/api/users/me'),
+  exportMyData: () =>
+    apiFetch<{ data: {
+      exported_at: string;
+      user: VeilUser;
+      responses: Array<Response & { content: string; content_encrypted: string }>;
+      soul_snapshots: Array<{ id: string; snapshot_text: string; mood_tag: string | null; gradient_key: string; created_at: string }>;
+      referrals: Array<{ id: string; referrer_id: string; referred_user_id: string; created_at: string }>;
+      connections: Array<{ id: string; user_a_id: string; user_b_id: string; resonance_type: string; depth_score: number; state: string; created_at: string }>;
+      thread_messages: Array<{ id: string; connection_id: string; sender_id: string; body: string; created_at: string }>;
+    } }>('/api/users/me/export'),
+  deleteMyAccount: () =>
+    apiFetch<{ data: { deleted: boolean; user_id: string } }>('/api/users/me', { method: 'DELETE' }),
   getAccess: () => apiFetch<{ data: { has_plus_access: boolean; is_plus: boolean; plus_trial_ends_at: string | null } }>('/api/users/access'),
   updateMe: (body: Partial<VeilUser>) =>
     apiFetch<{ data: VeilUser }>('/api/users/me', { method: 'PATCH', body: JSON.stringify(body) }),
@@ -50,11 +62,11 @@ export const api = {
     apiFetch<{ data: { id: string; snapshot_text: string; mood_tag: string | null; gradient_key: string; created_at: string } }>('/api/soul-map/snapshots', { method: 'POST', body: JSON.stringify(body) }),
 
   getResonanceSuggestions: () =>
-    apiFetch<{ data: Array<{ partner_user_id: string; partner_alias: string; score: number; resonance_type: 'mirror' | 'contrast' | 'echo' }> }>('/api/connections/resonance'),
+    apiFetch<{ data: Array<{ partner_user_id: string; partner_alias: string; score: number; resonance_type: 'mirror' | 'contrast' | 'echo'; is_ghost?: boolean }> }>('/api/matches/resonance'),
   proposeConnection: (body: { partner_user_id: string; resonance_type: 'mirror' | 'contrast' | 'echo' }) =>
     apiFetch<{ data: unknown }>('/api/connections/propose', { method: 'POST', body: JSON.stringify(body) }),
   getMyConnections: () =>
-    apiFetch<{ data: Array<{ id: string; resonance_type: 'mirror' | 'contrast' | 'echo'; depth_score: number; state: string; created_at: string; partner_alias?: string; partner_user_id: string }> }>('/api/connections/mine'),
+    apiFetch<{ data: Array<{ id: string; resonance_type: 'mirror' | 'contrast' | 'echo'; depth_score: number; state: string; created_at: string; partner_alias?: string; partner_user_id: string; is_ghost?: boolean; ghost_status?: string | null }> }>('/api/connections/mine'),
   acceptConnection: (id: string) =>
     apiFetch<{ data: unknown }>(`/api/connections/${id}/accept`, { method: 'POST' }),
   requestUnveil: (id: string) =>
@@ -62,7 +74,7 @@ export const api = {
   respondUnveil: (id: string, accept: boolean) =>
     apiFetch<{ data: unknown }>(`/api/connections/${id}/unveil/respond`, { method: 'POST', body: JSON.stringify({ accept }) }),
   getThread: (connectionId: string) =>
-    apiFetch<{ data: Array<{ id: string; sender_id: string; body: string; created_at: string; is_mine: boolean }> }>(`/api/connections/${connectionId}/thread`),
+    apiFetch<{ data: { messages: Array<{ id: string; sender_id: string; body: string; created_at: string; is_mine: boolean }>; ghost_status?: string | null } }>(`/api/connections/${connectionId}/thread`),
   sendThreadMessage: (connectionId: string, body: string) =>
     apiFetch<{ data: { id: string; sender_id: string; body: string; created_at: string } }>(`/api/connections/${connectionId}/thread`, { method: 'POST', body: JSON.stringify({ body }) }),
   registerPushToken: (expo_push_token: string, platform: 'ios' | 'android' | 'web') =>

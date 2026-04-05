@@ -4,7 +4,11 @@
   "scripts": {
     "mobile": "pnpm --filter mobile start",
     "api": "pnpm --filter api dev",
-    "build:api": "pnpm --filter api build"
+    "build:api": "pnpm --filter api build",
+    "release:check": "pnpm --filter mobile release:check",
+    "build:android:preview": "pnpm --filter mobile build:android:preview",
+    "build:android:production": "pnpm --filter mobile build:android:production",
+    "submit:android:production": "pnpm --filter mobile submit:android:production"
   },
   "devDependencies": {
     "@react-native/js-polyfills": "0.74.87",

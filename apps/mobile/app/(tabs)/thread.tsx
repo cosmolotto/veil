@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
@@ -39,6 +39,9 @@ export default function Thread() {
       await queryClient.invalidateQueries({ queryKey: ['thread', activeConnectionId] });
       await queryClient.invalidateQueries({ queryKey: ['connections'] });
     },
+    onError: (error) => {
+      Alert.alert('Message not sent', error instanceof Error ? error.message : 'Please try again.');
+    },
   });
 
   const demoMessages = useMemo(() => ([
@@ -64,7 +67,7 @@ export default function Thread() {
 
   const isPlus = accessQuery.data?.has_plus_access ?? !!user?.is_plus;
   const messageLimit = isPlus ? Number.POSITIVE_INFINITY : 8;
-  const messageCount = (threadQuery.data || []).length;
+  const messageCount = (threadQuery.data?.messages || []).length;
   const isLocked = messageCount >= messageLimit;
 
   return (
@@ -84,8 +87,14 @@ export default function Thread() {
         ))}
       </ScrollView>
 
+      {threadQuery.data?.ghost_status && (
+        <View style={styles.statusCard}>
+          <Text style={styles.statusText}>{threadQuery.data.ghost_status}</Text>
+        </View>
+      )}
+
       <ScrollView contentContainerStyle={styles.messages}>
-        {(threadQuery.data || []).map((message) => (
+        {(threadQuery.data?.messages || []).map((message) => (
           <View key={message.id} style={[styles.message, message.is_mine ? styles.mine : styles.theirs]}>
             <Text style={styles.messageText}>{message.body}</Text>
           </View>
@@ -146,4 +155,6 @@ const styles = StyleSheet.create({
   lockBox: { marginHorizontal: 12, marginBottom: 8, borderRadius: 12, borderWidth: 1, borderColor: COLORS.gold, padding: 12, backgroundColor: 'rgba(201,168,76,0.08)' },
   lockTitle: { color: COLORS.gold, fontWeight: '700' },
   lockSub: { color: COLORS.muted, fontSize: 12, marginTop: 4 },
+  statusCard: { marginHorizontal: 16, marginTop: 10, padding: 12, borderRadius: 12, backgroundColor: 'rgba(201,168,76,0.08)', borderWidth: 1, borderColor: COLORS.gold },
+  statusText: { color: COLORS.gold, fontSize: 12 },
 });

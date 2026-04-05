@@ -113,13 +113,19 @@ export async function updateSoulMapVector(
   const temporal_orientation = (Object.entries(temporalCounts)
     .sort(([, a], [, b]) => b - a)[0][0]) as 'past' | 'present' | 'future';
 
+  const { data: user } = await supabase
+    .from('users')
+    .select('streak_days')
+    .eq('id', userId)
+    .single();
+
   const metadata = {
     dominant_emotions,
     avg_depth_score: totalDepth / signatures.length,
     avg_vulnerability_score: totalVuln / signatures.length,
     temporal_orientation,
     response_count: signatures.length,
-    streak_days: 0, // CLAUDE_REVIEW: compute streak from daily_prompt_assignments in Phase 2
+    streak_days: Number(user?.streak_days || 0),
     last_updated: new Date().toISOString(),
   };
 

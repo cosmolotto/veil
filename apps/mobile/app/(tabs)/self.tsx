@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../stores/authStore';
@@ -44,6 +44,40 @@ export default function Self() {
     } catch {
       // CLAUDE_REVIEW: show toast for notification registration failures in next iteration.
     }
+  };
+
+  const exportData = async () => {
+    try {
+      const payload = await api.exportMyData();
+      await Share.share({
+        message: JSON.stringify(payload.data, null, 2),
+        title: 'VEIL account export',
+      });
+    } catch {
+      Alert.alert('Export failed', 'We could not prepare your account export right now.');
+    }
+  };
+
+  const deleteAccount = () => {
+    Alert.alert(
+      'Delete account?',
+      'This permanently removes your VEIL account, reflections, connections, and thread history.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await api.deleteMyAccount();
+              await signOut();
+            } catch {
+              Alert.alert('Deletion failed', 'We could not delete your account right now.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -96,6 +130,14 @@ export default function Self() {
         <Text style={styles.notifyText}>Enable push notifications</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity style={styles.exportBtn} onPress={exportData}>
+        <Text style={styles.exportText}>Export my data</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.deleteBtn} onPress={deleteAccount}>
+        <Text style={styles.deleteText}>Delete my account</Text>
+      </TouchableOpacity>
+
       {!!referralQuery.data?.invite_code && (
         <View style={styles.referralCard}>
           <Text style={styles.referralTitle}>Invite and unlock more trial time</Text>
@@ -138,6 +180,10 @@ const styles = StyleSheet.create({
   signOutText: { color: COLORS.muted, fontSize: 14 },
   notify: { padding: 16, borderWidth: 1, borderColor: COLORS.accent, borderRadius: 12, alignItems: 'center', marginTop: 12 },
   notifyText: { color: COLORS.accent, fontSize: 14, fontWeight: '600' },
+  exportBtn: { padding: 16, borderWidth: 1, borderColor: COLORS.border, borderRadius: 12, alignItems: 'center', marginTop: 12, backgroundColor: COLORS.surface },
+  exportText: { color: COLORS.white, fontSize: 14, fontWeight: '600' },
+  deleteBtn: { padding: 16, borderWidth: 1, borderColor: COLORS.error, borderRadius: 12, alignItems: 'center', marginTop: 12 },
+  deleteText: { color: COLORS.error, fontSize: 14, fontWeight: '700' },
   referralCard: { marginTop: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.surface, borderRadius: 12, padding: 14 },
   referralTitle: { color: COLORS.white, fontWeight: '700', fontSize: 13, marginBottom: 8 },
   referralCode: { color: COLORS.gold, fontSize: 26, fontWeight: '800', letterSpacing: 1.5, marginBottom: 6 },

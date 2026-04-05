@@ -4,6 +4,7 @@ export interface VeilUser {
   alias: string;
   created_at: string;
   last_active_at: string;
+  is_ghost?: boolean;
   soul_map_vector?: number[];
   soul_map_metadata?: SoulMapMetadata;
   unveil_photo_url?: string | null;
@@ -99,6 +100,8 @@ export interface Connection {
   depth_score: number; // 0-100
   state: ConnectionState;
   created_at: string;
+  is_ghost?: boolean;
+  ghost_status?: string | null;
   // Partner info is ALWAYS anonymous until unveiled
   partner_alias?: string; // only post-unveil
   partner_photo_url?: string; // only post-unveil

@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { extractEmotionalSignature, updateSoulMapVector } from '../services/soulMapService';
+import { encryptText, makeContentPreview } from '../services/cryptoService';
 
 const SNAPSHOT_GRADIENT_BY_EMOTION: Record<string, string> = {
   joy: 'sunrise',
@@ -73,16 +74,16 @@ export async function responseRoutes(fastify: FastifyInstance) {
 
     // Extract emotional signature (non-blocking)
     const emotional_signature = await extractEmotionalSignature(fastify.openai, content);
+    const contentPreview = makeContentPreview(content);
 
-    // Store response (content stored as-is; in production this would be encrypted)
-    // CLAUDE_REVIEW: Add proper encryption (AES-256-GCM) before production
     const { data: response, error } = await fastify.supabase
       .from('responses')
       .insert({
         user_id: userId,
         prompt_id,
         type,
-        content_encrypted: content,
+        content_encrypted: encryptText(content),
+        content_preview: contentPreview,
         emotional_signature,
         is_shared,
       })

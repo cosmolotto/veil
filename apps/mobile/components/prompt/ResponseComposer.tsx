@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, Alert } from 'react-native';
 import { VeilButton } from '../ui/VeilButton';
 import { COLORS } from '../../lib/constants';
 import { api } from '../../lib/api';
@@ -44,7 +44,7 @@ export function ResponseComposer({ promptId }: ResponseComposerProps) {
       await api.submitResponse({ prompt_id: promptId, type: mode, content: payload, is_shared: isShared });
       markResponded();
     } catch {
-      // CLAUDE_REVIEW: Add user-facing error toast in Phase 2
+      Alert.alert('Could not submit response', 'Please try again in a moment.');
     } finally {
       setLoading(false);
     }

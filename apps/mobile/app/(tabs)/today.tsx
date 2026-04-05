@@ -6,8 +6,11 @@ import { ResponseComposer } from '../../components/prompt/ResponseComposer';
 import { useTodayPrompt } from '../../hooks/useTodayPrompt';
 import { api } from '../../lib/api';
 import { COLORS } from '../../lib/constants';
+import { ensureDayTwoNotifications } from '../../lib/notifications';
+import { useAuthStore } from '../../stores/authStore';
 
 export default function Today() {
+  const { user } = useAuthStore();
   const { todayPrompt, hasResponded, isLoading } = useTodayPrompt();
   const [snapshotText, setSnapshotText] = React.useState('');
   const highlightsQuery = useQuery({
@@ -18,6 +21,10 @@ export default function Today() {
     mutationFn: () => api.createSoulSnapshot({ snapshot_text: snapshotText.trim() }),
     onSuccess: () => setSnapshotText(''),
   });
+
+  React.useEffect(() => {
+    void ensureDayTwoNotifications(user?.created_at);
+  }, [user?.created_at]);
 
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -31,37 +38,39 @@ export default function Today() {
 
       <PromptCard prompt={todayPrompt?.prompt ?? null} loading={isLoading} />
 
+      {!isLoading && !todayPrompt && (
+        <View style={styles.responded}>
+          <Text style={styles.respondedSub}>Your next question is gathering itself. Check back in a moment.</Text>
+        </View>
+      )}
+
       {!isLoading && todayPrompt && (
-        hasResponded
-          ? (
-            <View style={styles.responded}>
-              <Text style={styles.respondedText}>✓ Responded today</Text>
-              <Text style={styles.respondedSub}>Your Soul Map is updating.</Text>
-              <View style={styles.snapshotCard}>
-                <Text style={styles.snapshotTitle}>Create a Soul Snapshot</Text>
-                <TextInput
-                  value={snapshotText}
-                  onChangeText={setSnapshotText}
-                  placeholder="A short line you feel okay sharing..."
-                  placeholderTextColor={COLORS.muted}
-                  style={styles.snapshotInput}
-                  maxLength={180}
-                />
-                <TouchableOpacity
-                  style={[styles.snapshotButton, (!snapshotText.trim() || snapshotMutation.isPending) && styles.snapshotButtonDisabled]}
-                  disabled={!snapshotText.trim() || snapshotMutation.isPending}
-                  onPress={() => snapshotMutation.mutate()}
-                >
-                  <Text style={styles.snapshotButtonText}>
-                    {snapshotMutation.isPending ? 'Saving...' : 'Save snapshot'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+        hasResponded ? (
+          <View style={styles.responded}>
+            <Text style={styles.respondedText}>Responded today</Text>
+            <Text style={styles.respondedSub}>Your Soul Map is updating.</Text>
+            <View style={styles.snapshotCard}>
+              <Text style={styles.snapshotTitle}>Create a Soul Snapshot</Text>
+              <TextInput
+                value={snapshotText}
+                onChangeText={setSnapshotText}
+                placeholder="A short line you feel okay sharing..."
+                placeholderTextColor={COLORS.muted}
+                style={styles.snapshotInput}
+                maxLength={180}
+              />
+              <TouchableOpacity
+                style={[styles.snapshotButton, (!snapshotText.trim() || snapshotMutation.isPending) && styles.snapshotButtonDisabled]}
+                disabled={!snapshotText.trim() || snapshotMutation.isPending}
+                onPress={() => snapshotMutation.mutate()}
+              >
+                <Text style={styles.snapshotButtonText}>{snapshotMutation.isPending ? 'Saving...' : 'Save snapshot'}</Text>
+              </TouchableOpacity>
             </View>
-          )
-          : (
-            <ResponseComposer promptId={todayPrompt.prompt.id} />
-          )
+          </View>
+        ) : (
+          <ResponseComposer promptId={todayPrompt.prompt.id} />
+        )
       )}
 
       <View style={styles.section}>
@@ -88,7 +97,7 @@ const styles = StyleSheet.create({
   headerDate: { fontSize: 13, color: COLORS.muted },
   responded: { marginTop: 32, alignItems: 'center', padding: 32 },
   respondedText: { fontSize: 18, color: '#10B981', fontWeight: '600', marginBottom: 8 },
-  respondedSub: { fontSize: 13, color: COLORS.muted },
+  respondedSub: { fontSize: 13, color: COLORS.muted, textAlign: 'center' },
   section: { marginTop: 28 },
   sectionTitle: { fontSize: 17, color: COLORS.white, fontWeight: '700' },
   sectionSub: { fontSize: 12, color: COLORS.muted, marginTop: 4, marginBottom: 10 },

@@ -6,7 +6,7 @@ import { VeilButton } from '../../components/ui/VeilButton';
 import { COLORS } from '../../lib/constants';
 
 const PROMISES = [
-  'Your responses are encrypted and never sold.',
+  'Your reflections and thread messages are encrypted in storage and never sold.',
   'No ads. No tracking. No data brokers.',
   'You are anonymous until you choose otherwise.',
   'Delete everything. Anytime. Instantly.',

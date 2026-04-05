@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import { decryptText } from '../services/cryptoService';
 
 function generateInviteCode(alias: string): string {
   const seed = alias.replace(/[^a-zA-Z0-9]/g, '').slice(0, 6).toUpperCase();
@@ -130,6 +131,93 @@ export async function userRoutes(fastify: FastifyInstance) {
 
     if (error || !data) return reply.notFound('User not found');
     return { data, error: null };
+  });
+
+  // GET /api/users/me/export
+  fastify.get('/me/export', async (request, reply) => {
+    const userId = request.userId;
+
+    const [
+      userResult,
+      responsesResult,
+      snapshotsResult,
+      referralsResult,
+      connectionsResult,
+    ] = await Promise.all([
+      fastify.supabase
+        .from('users')
+        .select('id, alias, created_at, last_active_at, soul_map_metadata, unveil_photo_url, unveil_name, daily_prompt_time, onboarding_complete, is_plus, plus_activated_at, plus_source, plus_trial_ends_at, invite_code, referred_by, streak_days, streak_shields, last_response_date')
+        .eq('id', userId)
+        .single(),
+      fastify.supabase
+        .from('responses')
+        .select('id, prompt_id, type, created_at, is_shared, emotional_signature, content_encrypted, content_preview')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false }),
+      fastify.supabase
+        .from('soul_snapshots')
+        .select('id, snapshot_text, mood_tag, gradient_key, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false }),
+      fastify.supabase
+        .from('referrals')
+        .select('id, referrer_id, referred_user_id, created_at')
+        .or(`referrer_id.eq.${userId},referred_user_id.eq.${userId}`)
+        .order('created_at', { ascending: false }),
+      fastify.supabase
+        .from('connections')
+        .select('id, user_a_id, user_b_id, resonance_type, depth_score, state, created_at')
+        .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
+        .order('created_at', { ascending: false }),
+    ]);
+
+    if (userResult.error || !userResult.data) return reply.notFound('User not found');
+
+    const connectionIds = (connectionsResult.data || []).map((connection) => connection.id);
+    let threadMessages: Array<{
+      id: string;
+      connection_id: string;
+      sender_id: string;
+      body: string;
+      created_at: string;
+    }> = [];
+
+    if (connectionIds.length > 0) {
+      const { data } = await fastify.supabase
+        .from('thread_messages')
+        .select('id, connection_id, sender_id, body, created_at')
+        .in('connection_id', connectionIds)
+        .order('created_at', { ascending: false });
+
+      threadMessages = data || [];
+    }
+
+    return {
+      data: {
+        exported_at: new Date().toISOString(),
+        user: userResult.data,
+        responses: (responsesResult.data || []).map((item) => ({
+          ...item,
+          content: decryptText(item.content_encrypted),
+        })),
+        soul_snapshots: snapshotsResult.data || [],
+        referrals: referralsResult.data || [],
+        connections: connectionsResult.data || [],
+        thread_messages: threadMessages.map((item) => ({
+          ...item,
+          body: decryptText(item.body),
+        })),
+      },
+      error: null,
+    };
+  });
+
+  // DELETE /api/users/me
+  fastify.delete('/me', async (request, reply) => {
+    const userId = request.userId;
+    const { error } = await fastify.supabase.auth.admin.deleteUser(userId);
+    if (error) return reply.internalServerError(error.message);
+    return { data: { deleted: true, user_id: userId }, error: null };
   });
 
   // GET /api/users/access

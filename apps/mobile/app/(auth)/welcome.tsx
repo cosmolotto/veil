@@ -10,7 +10,7 @@ import { useAuthStore } from '../../stores/authStore';
 
 export default function Welcome() {
   const router = useRouter();
-  const { setSession, setUser } = useAuthStore();
+  const { setSession, setUser, setOnboardingLoading } = useAuthStore();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState('');
@@ -23,6 +23,7 @@ export default function Welcome() {
     }
 
     setLoading(true);
+    setOnboardingLoading(true);
     setNotice('');
 
     const { error } = await supabase.auth.signInWithOtp({
@@ -32,14 +33,15 @@ export default function Welcome() {
       },
     });
 
+    setLoading(false);
+    setOnboardingLoading(false);
+
     if (error) {
       setNotice('Unable to send magic link. Please try again.');
-      setLoading(false);
       return;
     }
 
-    setNotice('Magic link sent. Open your email to continue.');
-    setLoading(false);
+    setNotice('Magic link sent. Open your email, then return here.');
   };
 
   const handleDemoMode = () => {
@@ -50,18 +52,19 @@ export default function Welcome() {
       created_at: new Date().toISOString(),
       last_active_at: new Date().toISOString(),
       onboarding_complete: true,
-      daily_prompt_time: '08:00',
+      daily_prompt_time: '09:00',
       is_plus: false,
+      is_ghost: false,
     });
     router.replace('/(tabs)/today');
   };
 
   return (
     <View style={styles.container}>
-      <Animated.View entering={FadeIn.delay(800).duration(1000)} style={styles.content}>
+      <Animated.View entering={FadeIn.delay(150).duration(450)} style={styles.content}>
         <Text style={styles.title}>VEIL</Text>
         <Text style={styles.tagline}>Be Known Before You Are Seen.</Text>
-        <Text style={styles.sub}>Sign in with your email to begin.</Text>
+        <Text style={styles.sub}>Start with your email. The rest can stay hidden for now.</Text>
         <VeilInput
           value={email}
           onChangeText={setEmail}
@@ -71,22 +74,9 @@ export default function Welcome() {
           style={styles.input}
         />
         {!!notice && <Text style={styles.notice}>{notice}</Text>}
-        <VeilButton
-          label="Send magic link"
-          onPress={handleContinue}
-          loading={loading}
-          style={styles.btn}
-        />
-        <VeilButton
-          label="I already signed in"
-          onPress={() => router.push('/(auth)/create-alias')}
-          style={styles.secondaryBtn}
-        />
-        <VeilButton
-          label="Demo mode (no login)"
-          onPress={handleDemoMode}
-          style={styles.secondaryBtn}
-        />
+        <VeilButton label="Send magic link" onPress={handleContinue} loading={loading} style={styles.btn} />
+        <VeilButton label="I already signed in" onPress={() => router.push('/(auth)/create-alias')} style={styles.secondaryBtn} />
+        <VeilButton label="Demo mode (no login)" onPress={handleDemoMode} style={styles.secondaryBtn} />
       </Animated.View>
     </View>
   );

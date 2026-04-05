@@ -3,9 +3,20 @@
     "name": "VEIL",
     "slug": "veil",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
+    "description": "A private reflection network where identity stays hidden until genuine emotional connection is formed.",
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "androidStatusBar": {
+      "barStyle": "light-content",
+      "backgroundColor": "#0F0820"
+    },
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -13,14 +24,20 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.morvenempire.veil"
+      "bundleIdentifier": "com.morvenempire.veil",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0F0820"
       },
-      "package": "com.morvenempire.veil"
+      "package": "com.morvenempire.veil",
+      "versionCode": 1,
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "bundler": "metro"
