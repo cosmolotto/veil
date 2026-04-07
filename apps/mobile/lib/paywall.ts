@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
 
-export const VEIL_PLUS_URL = 'https://morvencode.gumroad.com/l/veil-plus';
+export const VEIL_PLUS_URL = 'https://morvencode.gumroad.com/l/rdvywb';
 
 const HAS_SEEN_PAYWALL_KEY = 'has_seen_paywall';
 const TRIAL_STARTED_AT_KEY = 'trial_started_at';
