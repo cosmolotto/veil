@@ -12,7 +12,8 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "paths": {
-      "@veil/shared": ["../../packages/shared/src/types"]
+      "@veil/shared": ["../../packages/shared/src/types"],
+      "@veil/shared/*": ["../../packages/shared/src/*"]
     }
   },
   "include": ["src"],
