@@ -10,6 +10,11 @@
     "build:android:production": "pnpm --filter mobile build:android:production",
     "submit:android:production": "pnpm --filter mobile submit:android:production"
   },
+  "pnpm": {
+    "overrides": {
+      "expo": "51.0.39"
+    }
+  },
   "devDependencies": {
     "@react-native/js-polyfills": "0.74.87",
     "metro": "0.80.12",
