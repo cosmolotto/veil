@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
-import Animated, { FadeIn } from 'react-native-reanimated';
 import { VeilButton } from '../../components/ui/VeilButton';
 import { VeilInput } from '../../components/ui/VeilInput';
 import { supabase } from '../../lib/supabase';
@@ -14,6 +13,11 @@ export default function Welcome() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState('');
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, { toValue: 1, duration: 450, delay: 150, useNativeDriver: true }).start();
+  }, []);
 
   const handleContinue = async () => {
     const normalized = email.trim().toLowerCase();
@@ -61,7 +65,7 @@ export default function Welcome() {
 
   return (
     <View style={styles.container}>
-      <Animated.View entering={FadeIn.delay(150).duration(450)} style={styles.content}>
+      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <Text style={styles.title}>VEIL</Text>
         <Text style={styles.tagline}>Be Known Before You Are Seen.</Text>
         <Text style={styles.sub}>Start with your email. The rest can stay hidden for now.</Text>

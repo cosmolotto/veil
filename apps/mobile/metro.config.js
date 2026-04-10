@@ -7,16 +7,13 @@ const workspaceRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-// Support pnpm workspaces: watch root node_modules
-config.watchFolders = [workspaceRoot];
+// Support pnpm workspaces: watch root node_modules (spread defaults to preserve Expo entries)
+config.watchFolders = [...(config.watchFolders || []), workspaceRoot];
 
 // Resolve modules from both app and workspace root
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'node_modules'),
 ];
-
-// Follow symlinks (required for pnpm's virtual store)
-config.resolver.unstable_enableSymlinks = true;
 
 module.exports = withNativeWind(config, { input: './global.css' });

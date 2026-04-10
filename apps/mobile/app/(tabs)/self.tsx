@@ -4,8 +4,16 @@ import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../stores/authStore';
 import { useSoulMap } from '../../hooks/useSoulMap';
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
+
+// expo-notifications remote push dropped from Expo Go in SDK 53+; guard for standalone builds only
+let Notifications: typeof import('expo-notifications') | null = null;
+try {
+  if (Constants.appOwnership !== 'expo') {
+    Notifications = require('expo-notifications');
+  }
+} catch { /* running in Expo Go — notifications unavailable */ }
 import { api } from '../../lib/api';
 import { COLORS, SIGNAL_COLORS } from '../../lib/constants';
 

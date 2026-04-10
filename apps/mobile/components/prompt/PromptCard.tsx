@@ -1,6 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import Animated, { FadeInUp } from 'react-native-reanimated';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import type { Prompt } from '@veil/shared';
 import { COLORS } from '../../lib/constants';
 
@@ -10,6 +9,18 @@ interface PromptCardProps {
 }
 
 export function PromptCard({ prompt, loading }: PromptCardProps) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    if (!loading && prompt) {
+      Animated.parallel([
+        Animated.spring(fadeAnim, { toValue: 1, useNativeDriver: true }),
+        Animated.spring(translateY, { toValue: 0, useNativeDriver: true }),
+      ]).start();
+    }
+  }, [loading, prompt]);
+
   if (loading || !prompt) {
     return (
       <View style={[styles.card, styles.skeleton]}>
@@ -22,7 +33,7 @@ export function PromptCard({ prompt, loading }: PromptCardProps) {
   }
 
   return (
-    <Animated.View entering={FadeInUp.springify()} style={styles.card}>
+    <Animated.View style={[styles.card, { opacity: fadeAnim, transform: [{ translateY }] }]}>
       <Text style={styles.category}>{prompt.category}</Text>
       <Text style={styles.text}>{prompt.text}</Text>
       <View style={styles.difficultyRow}>

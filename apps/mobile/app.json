@@ -50,7 +50,8 @@
           "icon": "./assets/notification-icon.png",
           "color": "#8B5CF6"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

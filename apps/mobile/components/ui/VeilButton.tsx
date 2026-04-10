@@ -1,6 +1,5 @@
-import React from 'react';
-import { TouchableOpacity, Text, ActivityIndicator, StyleSheet, ViewStyle } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import React, { useRef } from 'react';
+import { TouchableOpacity, Text, ActivityIndicator, StyleSheet, ViewStyle, Animated } from 'react-native';
 import { COLORS } from '../../lib/constants';
 
 interface VeilButtonProps {
@@ -13,11 +12,13 @@ interface VeilButtonProps {
 }
 
 export function VeilButton({ label, onPress, variant = 'primary', disabled, loading, style }: VeilButtonProps) {
-  const scale = useSharedValue(1);
-  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const scale = useRef(new Animated.Value(1)).current;
 
   const handlePress = () => {
-    scale.value = withSpring(0.96, {}, () => { scale.value = withSpring(1); });
+    Animated.sequence([
+      Animated.spring(scale, { toValue: 0.96, useNativeDriver: true }),
+      Animated.spring(scale, { toValue: 1, useNativeDriver: true }),
+    ]).start();
     onPress();
   };
 
@@ -26,7 +27,7 @@ export function VeilButton({ label, onPress, variant = 'primary', disabled, load
     : 'transparent';
 
   return (
-    <Animated.View style={[animStyle, style]}>
+    <Animated.View style={[{ transform: [{ scale }] }, style]}>
       <TouchableOpacity
         style={[styles.button, { backgroundColor: bg, opacity: disabled ? 0.4 : 1 }]}
         onPress={handlePress}

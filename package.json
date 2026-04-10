@@ -12,16 +12,16 @@
   },
   "devDependencies": {
     "@react-native/js-polyfills": "0.74.87",
-    "metro": "0.80.12",
-    "metro-cache": "0.80.12",
-    "metro-config": "0.80.12",
-    "metro-core": "0.80.12",
-    "metro-file-map": "0.80.12",
-    "metro-minify-terser": "0.80.12",
-    "metro-resolver": "0.80.12",
-    "metro-runtime": "0.80.12",
-    "metro-source-map": "0.80.12",
-    "metro-symbolicate": "0.80.12",
-    "metro-transform-worker": "0.80.12"
+    "metro": "0.83.5",
+    "metro-cache": "0.83.5",
+    "metro-config": "0.83.5",
+    "metro-core": "0.83.5",
+    "metro-file-map": "0.83.5",
+    "metro-minify-terser": "0.83.5",
+    "metro-resolver": "0.83.5",
+    "metro-runtime": "0.83.5",
+    "metro-source-map": "0.83.5",
+    "metro-symbolicate": "0.83.5",
+    "metro-transform-worker": "0.83.5"
   }
 }
