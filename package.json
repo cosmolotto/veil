@@ -10,6 +10,11 @@
     "build:android:production": "pnpm --filter mobile build:android:production",
     "submit:android:production": "pnpm --filter mobile submit:android:production"
   },
+  "pnpm": {
+    "overrides": {
+      "react-native-worklets": "0.7.4"
+    }
+  },
   "devDependencies": {
     "@react-native/js-polyfills": "0.74.87",
     "metro": "0.83.5",
